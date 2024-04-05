@@ -5,9 +5,14 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app
-from flask import render_template, request, jsonify, send_file
+from app import app, db
+from flask import render_template, url_for, request, make_response, jsonify, send_file, flash, redirect
+from datetime import datetime
 import os
+
+from app.forms import MovieForm
+from app.models import Movies
+from werkzeug.utils import secure_filename, send_from_directory
 
 
 ###
@@ -17,6 +22,36 @@ import os
 @app.route('/')
 def index():
     return jsonify(message="This is the beginning of our API")
+
+@app.route('/api/v1/movies', methods=['POST'])
+def movies():
+    form = MovieForm() # Initialize Form
+
+    if form.validate_on_submit(): 
+        # Create a new Movie object with the form data
+        file = form.photo.data
+
+        new_movie = Movies(
+            title=form.title.data,
+            description=form.description.data,
+            poster=secure_filename(file.filename),
+            created_at=datetime.now()
+        )
+
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
+        db.session.add(new_movie)
+        db.session.commit()
+        flash('Movie Added Successfully', 'success')
+        
+        response = make_response(jsonify({"message": "Movie successfully created", "title": new_movie.title, "poster": new_movie.poster, "description": new_movie.description}), 201)
+        return response
+    else:
+        errors = form_errors(form)
+        response = jsonify({"errors": errors})
+        return make_response(response, 400)
+    
+    # return render_template('movies.html', form = form)
 
 
 ###

@@ -3,6 +3,7 @@ import base64
 import os
 from app import app
 from . import db
+from datetime import datetime
 class Movies(db.Model):
     __tablename__ = 'movies'
 
@@ -10,8 +11,7 @@ class Movies(db.Model):
     title = db.Column(db.String(120))
     description = db.Column(db.String(1024))
     poster = db.Column(db.String(255))
-    created_at = db.column(db.Date)
-
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, title, description, poster, created_at):
         self.title = title
