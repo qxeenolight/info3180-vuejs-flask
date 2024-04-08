@@ -7,3 +7,10 @@ import movieForm from '../components/MovieForm.vue';
     
     </movieForm>
 </template>
+
+<style>
+    body {
+        margin-left: 50px;
+        margin-right: 1000px;
+    }
+</style>

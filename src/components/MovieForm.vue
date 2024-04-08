@@ -49,6 +49,9 @@ const handleFileChange = (event) => {
 };
 
 const saveMovie = () => {
+    message.value = ""; // Clear previous message
+    success.value = false; // Reset success to false
+
     const form = document.querySelector("#movieForm");
     let formData = new FormData(form);
 
@@ -56,7 +59,7 @@ const saveMovie = () => {
         method: 'POST',
         body: formData,
         headers: {
-        'X-CSRFToken': csrf_token.value
+            'X-CSRFToken': csrf_token.value
         } 
     })
     .then(function (response) {
@@ -64,7 +67,7 @@ const saveMovie = () => {
     })
     .then(function (data) {
         console.log(data)
-        if (data.success) {
+        if (data) {
             message.value = "File Uploaded Successfully.";
             success.value = true; // Set success to true
             form.reset(); // Reset the form

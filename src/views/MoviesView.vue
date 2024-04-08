@@ -1,24 +1,20 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
-let movies = ref([]);
+let moviesData = ref([]);
 
-const fetchMovies = () => {
+const fetchMovies = async () => {
     console.log("Fetching movies...");
     try {
         console.log("API Endpoint accessed...");
-        fetch("/api/v1/movies")
-        .then(response => {
-            if (!response.ok) {
-                console.log("Response not ok...");
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(data)
-            movies.value = data.movies;
-        });
+        const response = await fetch("/api/v1/movies");
+        if (!response.ok) {
+            console.log("Response not ok...");
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data);
+        moviesData.value = data.movies;
     } catch (error) {
         console.error("Error fetching movies:", error);
     }
@@ -27,10 +23,13 @@ const fetchMovies = () => {
 onMounted(() => {
     fetchMovies();
 });
+
+const movies = computed(() => moviesData.value);
+
 </script>
 
 <template>
-    <div>
+    <div :key="$route.fullPath">
         <h2>Movies</h2>
         <div class="card-group">
             <div v-for="movie in movies" :key="movie.id" class="card movie">
@@ -46,12 +45,13 @@ onMounted(() => {
 
 <style>
     h2 {
-    margin-left: 160px;
-    margin-bottom: 0;
+        margin-left: 160px;
+        margin-bottom: 0;
     }
 
     .card-group {
         margin: auto;
+        margin-left: 160px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
         gap: 20px;
