@@ -1,5 +1,8 @@
 <template>
     <form @submit.prevent="saveMovie" id="movieForm">
+        <div v-if="message" class="alert" :class="{'alert-success': success, 'alert-danger': !success}">
+            {{ message }}
+        </div>
         <div class="form-group mb-3">
             <label for="title" class="form-label">Movie Title</label>
             <input type="text" name="title" class="form-control" />
@@ -22,6 +25,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+
+let message = ref("");
 
 onMounted(() => {
     getCsrfToken();
@@ -52,11 +57,16 @@ const saveMovie = () => {
             return response.json();
         })
         .then(function (data) {
-            // display a success message
+            if (data.success) {
+                message.value = "File Uploaded Successfully.";
+            } else {
+                message.value = "Failed to save movie. Please check your input.";
+            }
             console.log(data);
         })
         .catch(function (error) {
             console.log(error);
+            message.value = "An error occurred while saving the movie.";
         });
 };
 </script>
