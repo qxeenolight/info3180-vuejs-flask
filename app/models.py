@@ -33,11 +33,6 @@ class Movies(db.Model):
             return unicodedata(self.id)  # python 2 support
         except NameError:
             return str(self.id)  # python 3 support
-
-    def get_image_url(self):
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], self.filename), 'rb') as img_file:
-            encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
-        return f'data:image/jpeg;base64,{encoded_image}'
     
     def __repr__(self):
         return '<Movies %r>' % (self.title)

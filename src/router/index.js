@@ -21,6 +21,11 @@ const router = createRouter({
       path: '/movies/create',
       name: 'create',
       component: () => import('../views/AddMovieFormView.vue')
+    },
+    {
+      path: '/movies',
+      name: 'movies',
+      component: () => import('../views/MoviesView.vue')
     }
   ]
 })

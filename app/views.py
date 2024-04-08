@@ -4,7 +4,6 @@ Jinja2 Documentation:    https://jinja.palletsprojects.com/
 Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
-
 from app import app, db
 from flask import render_template, url_for, request, make_response, jsonify, send_file, flash, redirect
 from flask_wtf.csrf import generate_csrf
@@ -15,6 +14,7 @@ from app.forms import MovieForm
 from app.models import Movies
 from werkzeug.utils import secure_filename, send_from_directory
 
+app.config['UPLOAD_FOLDER'] = './uploads'
 ###
 # Routing for your application.
 ###
@@ -55,7 +55,37 @@ def movies():
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()}) 
 
-###
+@app.route('/api/v1/movies', methods=['GET'])
+def get_movies():
+    try:
+        # print("success")
+        movies = Movies.query.all()
+        movies_list = []
+        for movie in movies:
+            movie_data = {
+                'id': movie.id,
+                'title': movie.title,
+                'description': movie.description,
+                # 'poster': f'/api/v1/posters/{movie.poster}'
+
+                'poster': movie.poster  # Assuming poster is a filename
+            }
+            # get_poster(movie_data['poster'])
+            movies_list.append(movie_data)
+        return jsonify({'movies': movies_list})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Below function does not work for me
+@app.route('/api/v1/posters/<filename>')
+def get_poster(filename):
+    try:
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    except FileNotFoundError:
+        os.abort(404)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # The functions below should be applicable to all Flask apps.
 ###
 
