@@ -7,13 +7,13 @@ This file creates your application.
 
 from app import app, db
 from flask import render_template, url_for, request, make_response, jsonify, send_file, flash, redirect
+from flask_wtf.csrf import generate_csrf
 from datetime import datetime
 import os
 
 from app.forms import MovieForm
 from app.models import Movies
 from werkzeug.utils import secure_filename, send_from_directory
-
 
 ###
 # Routing for your application.
@@ -51,8 +51,9 @@ def movies():
         response = jsonify({"errors": errors})
         return make_response(response, 400)
     
-    # return render_template('movies.html', form = form)
-
+@app.route('/api/v1/csrf-token', methods=['GET'])
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()}) 
 
 ###
 # The functions below should be applicable to all Flask apps.
@@ -79,7 +80,6 @@ def send_text_file(file_name):
     file_dot_text = file_name + '.txt'
     return app.send_static_file(file_dot_text)
 
-
 @app.after_request
 def add_header(response):
     """
@@ -90,7 +90,6 @@ def add_header(response):
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'
     return response
-
 
 @app.errorhandler(404)
 def page_not_found(error):
